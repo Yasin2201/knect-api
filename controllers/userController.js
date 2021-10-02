@@ -23,7 +23,7 @@ exports.sign_up_post = [
             });
 
             if (!errors.isEmpty()) {
-                res.json({ title: 'Sign Up', errors: errors.array(), user: undefined });
+                res.json({ title: 'Sign Up', alerts: errors.array(), user: undefined });
                 return
             } else {
                 // first check if username already exists
@@ -33,14 +33,60 @@ exports.sign_up_post = [
 
                         // if username exists re-render sign-up with error
                         if (found_username) {
-                            res.json({ title: 'Sign Up', user: undefined, errors: [{ msg: 'Username already exists' }] });
+                            res.json({ title: 'Sign Up', user: undefined, alerts: [{ msg: 'Username already exists' }] });
                         } else {
                             user.save(function (err) {
                                 if (err) { return next(err) }
-                                res.json({ message: 'Signed Up Successfully!' })
+                                res.json({ alerts: [{ msg: 'Signed Up Successfully!' }] })
                             });
                         }
                     });
+            }
+        })
+    }
+]
+
+// User sign-in
+exports.sign_in_post = [
+
+    //validate and sanitize sign-in fields
+    body("username", "Username required").trim().isLength({ min: 1 }).escape(),
+    body("password", "Password required").trim().isLength({ min: 5 }).escape(),
+
+    (req, res, next) => {
+        let { username, password } = req.body;
+
+        //Errors from req if any
+        const errors = validationResult(req)
+
+        User.findOne({ username: username }, (err, user) => {
+            if (err) { return next(err) }
+
+            if (!user) {
+                res.status(401).json({
+                    alerts: [{ msg: "User not found" }],
+                    userAuth: false,
+                });
+            }
+
+            else {
+                bcrypt.compare(password, user.password, (err, result) => {
+                    if (result) {
+                        // passwords match! log user in
+                        return res.status(200).json({
+                            alerts: [{ msg: "Auth Passed" }],
+                            userAuth: true,
+                        });
+                    } else {
+                        // passwords do not match!
+                        console.log(errors)
+                        return res.status(401).json({
+                            alerts: [{ msg: "Incorrect Password" }],
+                            userAuth: false,
+                            errors: errors.array()
+                        });
+                    }
+                });
             }
         })
     }
