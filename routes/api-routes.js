@@ -21,4 +21,7 @@ router.get('/sign-out', user_controller.sign_out_get)
 //POST new post
 router.post('/:id', post_controller.new_post)
 
+//UPDATE post
+router.put('/:userid/update/:postid', post_controller.update_post)
+
 module.exports = router;
