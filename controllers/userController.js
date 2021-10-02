@@ -50,8 +50,8 @@ exports.sign_up_post = [
 exports.sign_in_post = [
 
     //validate and sanitize sign-in fields
-    body("username", "Username required").trim().isLength({ min: 1 }).escape(),
-    body("password", "Password required").trim().isLength({ min: 5 }).escape(),
+    body("username").trim().isLength({ min: 1 }).escape(),
+    body("password", "Incorrect Password").trim().isLength({ min: 5 }).escape(),
 
     (req, res, next) => {
         let { username, password } = req.body;
@@ -79,11 +79,9 @@ exports.sign_in_post = [
                         });
                     } else {
                         // passwords do not match!
-                        console.log(errors)
                         return res.status(401).json({
-                            alerts: [{ msg: "Incorrect Password" }],
                             userAuth: false,
-                            errors: errors.array()
+                            alerts: errors.array()
                         });
                     }
                 });
