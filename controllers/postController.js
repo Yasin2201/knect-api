@@ -53,7 +53,6 @@ exports.update_post = [
             res.json({ alerts: errors.array() })
             return
         } else {
-            // successful redirect to update category detail page
             Post.findByIdAndUpdate(req.params.postid, post, {}, function (err) {
                 if (err) { return next(err) }
 
@@ -65,3 +64,11 @@ exports.update_post = [
         };
     }
 ];
+
+exports.get_post = function (req, res, next) {
+    Post.findById(req.params.postid)
+        .exec(function (err, found_post) {
+            if (err) { return next(err) }
+            res.json({ found_post })
+        })
+}
