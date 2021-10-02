@@ -71,6 +71,8 @@ exports.sign_in_post = [
 
             else {
                 bcrypt.compare(password, user.password, (err, result) => {
+                    if (err) { return next(err) }
+
                     if (result) {
                         // passwords match! log user in
                         return res.status(200).json({
