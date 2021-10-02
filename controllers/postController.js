@@ -65,10 +65,21 @@ exports.update_post = [
     }
 ];
 
+//GET single post
 exports.get_post = function (req, res, next) {
     Post.findById(req.params.postid)
         .exec(function (err, found_post) {
             if (err) { return next(err) }
             res.json({ found_post })
+        })
+}
+
+//GET all posts
+exports.get_all_posts = function (req, res, next) {
+    Post.find({ userId: req.params.id })
+        .sort({ date: -1 })
+        .exec(function (err, all_posts) {
+            if (err) { return next(err) }
+            res.json({ all_posts })
         })
 }

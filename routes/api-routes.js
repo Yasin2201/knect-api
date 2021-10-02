@@ -21,6 +21,9 @@ router.get('/sign-out', user_controller.sign_out_get)
 //POST new post
 router.post('/:id', post_controller.new_post)
 
+//GET all users posts
+router.get('/:id/posts', post_controller.get_all_posts)
+
 //GET single post
 router.get('/:userid/posts/:postid', post_controller.get_post)
 
