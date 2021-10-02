@@ -44,7 +44,7 @@ exports.sign_up_post = [
             }
         })
     }
-]
+];
 
 // User sign-in
 exports.sign_in_post = [
@@ -90,4 +90,10 @@ exports.sign_in_post = [
             }
         })
     }
-]
+];
+
+//Sign out user
+exports.sign_out_get = function (req, res) {
+    req.logout();
+    res.redirect('/');
+};
