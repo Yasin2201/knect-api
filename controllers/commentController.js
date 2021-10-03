@@ -47,9 +47,9 @@ exports.update_comment = [
             if (err) {
                 return next(err)
             } else if (!results.user || !results.comment) {
-                res.status(404).json({ alert: { msg: "User or Comment Not Found" } })
+                res.status(404).json({ alerts: { msg: "User or Comment Not Found" } })
             } else if (results.comment.userId.toString() !== results.user._id.toString()) {
-                res.status(401).json({ alert: { msg: "You Can't Edit This Comment!" } })
+                res.status(401).json({ alerts: { msg: "You Can't Edit This Comment!" } })
             } else {
                 const updatedComment = new Comment({
                     _id: results.comment._id,
@@ -79,4 +79,29 @@ exports.get_post_comments = function (req, res, next) {
             if (err) { return next(err) }
             res.status(200).json({ post_comments })
         })
+}
+
+//DELETE users comment
+exports.delete_comment = function (req, res, next) {
+    async.parallel({
+        user: function (cb) {
+            User.findById(req.params.userid).exec(cb)
+        },
+        comment: function (cb) {
+            Comment.findById(req.params.commentid).exec(cb)
+        },
+    }, function (err, results) {
+        if (err) {
+            return next(err)
+        } else if (!results.user || !results.comment) {
+            res.status(404).json({ alerts: { msg: "User or Comment Not Found" } })
+        } else if (results.comment.userId.toString() !== results.user._id.toString()) {
+            res.status(401).json({ alerts: { msg: "You Can't Delete This Comment!" } })
+        } else {
+            Comment.findByIdAndRemove(results.comment._id, function deleteComment(err) {
+                if (err) { return next(err) }
+                res.json({ alerts: { msg: "Deleted Comment" } })
+            })
+        }
+    })
 }

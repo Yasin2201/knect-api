@@ -35,7 +35,7 @@ router.put('/:userid/update/:postid', post_controller.update_post)
 router.put('/:userid/like/:postid', post_controller.like_post)
 
 //DELETE a post
-router.delete('/:userid/delete/:postid', post_controller.delete_post)
+router.delete('/:userid/delete-post/:postid', post_controller.delete_post)
 
 /*
     COMMENTS ROUTES
@@ -48,5 +48,8 @@ router.put('/:userid/comment/:commentid', comment_controller.update_comment)
 
 //GET all posts comments
 router.get('/:id/comments', comment_controller.get_post_comments)
+
+//DELETE comment
+router.delete('/:userid/delete-comment/:commentid', comment_controller.delete_comment)
 
 module.exports = router;
