@@ -56,7 +56,8 @@ exports.update_comment = [
                     userId: results.comment.userId,
                     postId: results.comment.postId,
                     text: req.body.text,
-                    date: results.comment.date
+                    date: results.comment.date,
+                    likes: results.comment.likes
                 })
 
                 Comment.findByIdAndUpdate(results.comment._id, updatedComment, {}, function (err) {
@@ -104,4 +105,28 @@ exports.delete_comment = function (req, res, next) {
             })
         }
     })
+}
+
+//PUT like/unlike comments
+exports.like_comment = function (req, res, next) {
+    Comment.findById(req.params.commentid)
+        .exec(function (err, foundComment) {
+            if (err) { return next(err) }
+            if (!foundComment) { res.status(404).json({ alerts: { msg: "Comment doesn't exist" } }) }
+            // if post is found and already liked by user filter out user and return likes to "unlike"
+            else if (foundComment.likes.includes(req.params.userid)) {
+                const likesArray = [...foundComment.likes];
+                const filteredLikesArray = likesArray.filter(
+                    (userId) => userId != req.params.userid
+                );
+
+                foundComment.likes = filteredLikesArray;
+                foundComment.save();
+                return res.status(201).json({ alerts: { msg: "Comment Unliked" }, comment: foundComment });
+            } else {
+                foundComment.likes.push(req.params.userid);
+                foundComment.save();
+                return res.status(201).json({ alerts: { msg: "Comment Liked" }, comment: foundComment });
+            }
+        })
 }
