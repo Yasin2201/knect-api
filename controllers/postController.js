@@ -83,3 +83,26 @@ exports.get_all_posts = function (req, res, next) {
             res.json({ all_posts })
         })
 }
+
+//PUT like/unlike posts
+exports.like_post = function (req, res, next) {
+    Post.findById(req.params.postid)
+        .exec(function (err, foundPost) {
+            if (err) { return next(err) }
+            // if post is found and already liked by user filter out user and return likes to "unlike"
+            if (foundPost.likes.includes(req.params.userid)) {
+                const likesArray = [...foundPost.likes];
+                const filteredLikesArray = likesArray.filter(
+                    (userId) => userId != req.params.userid
+                );
+
+                foundPost.likes = filteredLikesArray;
+                foundPost.save();
+                return res.status(201).json({ message: "Post Unliked", post: foundPost });
+            } else {
+                foundPost.likes.push(req.params.userid);
+                foundPost.save();
+                return res.status(201).json({ message: "Post liked", post: foundPost });
+            }
+        })
+}

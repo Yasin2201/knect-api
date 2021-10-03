@@ -30,4 +30,8 @@ router.get('/:userid/posts/:postid', post_controller.get_post)
 //UPDATE post PUT
 router.put('/:userid/update/:postid', post_controller.update_post)
 
+//PUT like/unlike post
+router.put('/:userid/like/:postid', post_controller.like_post)
+
+
 module.exports = router;
