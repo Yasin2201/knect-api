@@ -43,6 +43,9 @@ router.delete('/:userid/delete/:postid', post_controller.delete_post)
 //POST new comment
 router.post('/:userid/post/:postid/comment', comment_controller.new_comment)
 
+//UPDATE comment
+router.put('/:userid/comment/:commentid', comment_controller.update_comment)
+
 //GET all posts comments
 router.get('/:id/comments', comment_controller.get_post_comments)
 
