@@ -36,39 +36,47 @@ exports.update_comment = [
     body('text', 'Text Must Not Be Empty').trim().isLength({ min: 1 }),
 
     function (req, res, next) {
-        async.parallel({
-            user: function (cb) {
-                User.findById(req.params.userid).exec(cb)
-            },
-            comment: function (cb) {
-                Comment.findById(req.params.commentid).exec(cb)
-            },
-        }, function (err, results) {
-            if (err) {
-                return next(err)
-            } else if (!results.user || !results.comment) {
-                res.status(404).json({ alerts: [{ msg: "User or Comment Not Found" }] })
-            } else if (results.comment.userId.toString() !== results.user._id.toString()) {
-                res.status(401).json({ alerts: [{ msg: "You Can't Edit This Comment!" }] })
-            } else {
-                const updatedComment = new Comment({
-                    _id: results.comment._id,
-                    userId: results.comment.userId,
-                    postId: results.comment.postId,
-                    text: req.body.text,
-                    date: results.comment.date,
-                    likes: results.comment.likes
-                })
+        const errors = validationResult(req);
 
-                Comment.findByIdAndUpdate(results.comment._id, updatedComment, {}, function (err) {
-                    if (err) { return next(err) }
-                    res.json({
-                        alerts: [{ msg: "Comment Updated Successfully" }],
-                        updatedComment
-                    });
-                })
-            }
-        })
+        if (!errors.isEmpty()) {
+            //re-render form if any errors
+            res.status(400).json({ alerts: errors.array() })
+            return
+        } else {
+            async.parallel({
+                user: function (cb) {
+                    User.findById(req.params.userid).exec(cb)
+                },
+                comment: function (cb) {
+                    Comment.findById(req.params.commentid).exec(cb)
+                },
+            }, function (err, results) {
+                if (err) {
+                    return next(err)
+                } else if (!results.user || !results.comment) {
+                    res.status(404).json({ alerts: [{ msg: "User or Comment Not Found" }] })
+                } else if (results.comment.userId.toString() !== results.user._id.toString()) {
+                    res.status(401).json({ alerts: [{ msg: "You Can't Edit This Comment!" }] })
+                } else {
+                    const updatedComment = new Comment({
+                        _id: results.comment._id,
+                        userId: results.comment.userId,
+                        postId: results.comment.postId,
+                        text: req.body.text,
+                        date: results.comment.date,
+                        likes: results.comment.likes
+                    })
+
+                    Comment.findByIdAndUpdate(results.comment._id, updatedComment, {}, function (err) {
+                        if (err) { return next(err) }
+                        res.json({
+                            alerts: [{ msg: "Comment Updated Successfully" }],
+                            updatedComment
+                        });
+                    })
+                }
+            })
+        }
     }
 ]
 
