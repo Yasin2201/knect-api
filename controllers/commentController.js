@@ -24,7 +24,7 @@ exports.new_comment = [
             //save comment to database
             comment.save(function (err) {
                 if (err) { return next(err) }
-                res.json({ alerts: { msg: "Comment Saved Successfully" } })
+                res.json({ alerts: [{ msg: "Comment Saved Successfully" }] })
             });
         }
     }
@@ -47,9 +47,9 @@ exports.update_comment = [
             if (err) {
                 return next(err)
             } else if (!results.user || !results.comment) {
-                res.status(404).json({ alerts: { msg: "User or Comment Not Found" } })
+                res.status(404).json({ alerts: [{ msg: "User or Comment Not Found" }] })
             } else if (results.comment.userId.toString() !== results.user._id.toString()) {
-                res.status(401).json({ alerts: { msg: "You Can't Edit This Comment!" } })
+                res.status(401).json({ alerts: [{ msg: "You Can't Edit This Comment!" }] })
             } else {
                 const updatedComment = new Comment({
                     _id: results.comment._id,
@@ -95,13 +95,13 @@ exports.delete_comment = function (req, res, next) {
         if (err) {
             return next(err)
         } else if (!results.user || !results.comment) {
-            res.status(404).json({ alerts: { msg: "User or Comment Not Found" } })
+            res.status(404).json({ alerts: [{ msg: "User or Comment Not Found" }] })
         } else if (results.comment.userId.toString() !== results.user._id.toString()) {
-            res.status(401).json({ alerts: { msg: "You Can't Delete This Comment!" } })
+            res.status(401).json({ alerts: [{ msg: "You Can't Delete This Comment!" }] })
         } else {
             Comment.findByIdAndRemove(results.comment._id, function deleteComment(err) {
                 if (err) { return next(err) }
-                res.json({ alerts: { msg: "Deleted Comment" } })
+                res.json({ alerts: [{ msg: "Deleted Comment" }] })
             })
         }
     })
@@ -112,7 +112,7 @@ exports.like_comment = function (req, res, next) {
     Comment.findById(req.params.commentid)
         .exec(function (err, foundComment) {
             if (err) { return next(err) }
-            if (!foundComment) { res.status(404).json({ alerts: { msg: "Comment doesn't exist" } }) }
+            if (!foundComment) { res.status(404).json({ alerts: [{ msg: "Comment doesn't exist" }] }) }
             // if post is found and already liked by user filter out user and return likes to "unlike"
             else if (foundComment.likes.includes(req.params.userid)) {
                 const likesArray = [...foundComment.likes];
@@ -122,11 +122,11 @@ exports.like_comment = function (req, res, next) {
 
                 foundComment.likes = filteredLikesArray;
                 foundComment.save();
-                return res.status(201).json({ alerts: { msg: "Comment Unliked" }, comment: foundComment });
+                return res.status(201).json({ alerts: [{ msg: "Comment Unliked" }], comment: foundComment });
             } else {
                 foundComment.likes.push(req.params.userid);
                 foundComment.save();
-                return res.status(201).json({ alerts: { msg: "Comment Liked" }, comment: foundComment });
+                return res.status(201).json({ alerts: [{ msg: "Comment Liked" }], comment: foundComment });
             }
         })
 }

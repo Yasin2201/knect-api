@@ -91,6 +91,7 @@ exports.like_post = function (req, res, next) {
     Post.findById(req.params.postid)
         .exec(function (err, foundPost) {
             if (err) { return next(err) }
+            if (!foundPost) { res.status(404).json({ alerts: [{ msg: "Post doesn't exist" }] }) }
             // if post is found and already liked by user filter out user and return likes to "unlike"
             if (foundPost.likes.includes(req.params.userid)) {
                 const likesArray = [...foundPost.likes];
@@ -100,11 +101,11 @@ exports.like_post = function (req, res, next) {
 
                 foundPost.likes = filteredLikesArray;
                 foundPost.save();
-                return res.status(201).json({ message: "Post Unliked", post: foundPost });
+                return res.status(201).json({ alerts: [{ msg: "Post Unliked" }], post: foundPost });
             } else {
                 foundPost.likes.push(req.params.userid);
                 foundPost.save();
-                return res.status(201).json({ message: "Post liked", post: foundPost });
+                return res.status(201).json({ alerts: [{ msg: "Post Unliked" }], post: foundPost });
             }
         })
 }
@@ -122,13 +123,13 @@ exports.delete_post = function (req, res, next) {
         if (err) {
             return next(err)
         } else if (!results.user || !results.post) {
-            res.status(404).json({ alert: { msg: "User or Post Not Found" } })
+            res.status(404).json({ alerts: [{ msg: "User or Post Not Found" }] })
         } else if (results.post.userId.toString() !== results.user._id.toString()) {
-            res.status(401).json({ alert: { msg: "You Can't Delete This Post!" } })
+            res.status(401).json({ alerts: [{ msg: "You Can't Delete This Post!" }] })
         } else {
             Post.findByIdAndRemove(results.post._id, function deletePost(err) {
                 if (err) { return next(err) }
-                res.json({ alert: { msg: "Deleted Post" } })
+                res.json({ alerts: [{ msg: "Deleted Post" }] })
             })
         }
     })
