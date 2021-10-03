@@ -1,5 +1,7 @@
 const Post = require('../models/post')
+const User = require('../models/user')
 const { body, validationResult } = require('express-validator');
+const async = require('async');
 
 // Handle user new post
 exports.new_post = [
@@ -105,4 +107,39 @@ exports.like_post = function (req, res, next) {
                 return res.status(201).json({ message: "Post liked", post: foundPost });
             }
         })
+}
+
+// //DELETE users post
+// exports.delete_post = function (req, res, next) {
+//     Post.findByIdAndRemove(req.params.id, function deletePost(err) {
+//         if (err) { return next(err) }
+//         res.json({
+//             message: "Successfully Deleted Post",
+//         });
+//     });
+// }
+
+//DELETE users post
+exports.delete_post = function (req, res, next) {
+    async.parallel({
+        user: function (cb) {
+            User.findById(req.params.userid).exec(cb)
+        },
+        post: function (cb) {
+            Post.findById(req.params.postid).exec(cb)
+        },
+    }, function (err, results) {
+        if (err) {
+            return next(err)
+        } else if (!results.user || !results.post) {
+            res.status(404).json({ alert: { msg: "User or Post Not Found" } })
+        } else if (results.post.userId.toString() !== results.user._id.toString()) {
+            res.status(401).json({ alert: { msg: "You Can't Delete This Post!" } })
+        } else {
+            Post.findByIdAndRemove(results.post._id, function deletePost(err) {
+                if (err) { return next(err) }
+                res.json({ alert: { msg: "Deleted Post" } })
+            })
+        }
+    })
 }

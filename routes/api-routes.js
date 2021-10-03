@@ -33,5 +33,8 @@ router.put('/:userid/update/:postid', post_controller.update_post)
 //PUT like/unlike post
 router.put('/:userid/like/:postid', post_controller.like_post)
 
+//DELETE a post
+router.delete('/:userid/delete/:postid', post_controller.delete_post)
+
 
 module.exports = router;
