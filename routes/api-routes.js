@@ -29,7 +29,7 @@ router.get('/:id/posts', post_controller.get_all_posts)
 router.get('/:userid/posts/:postid', post_controller.get_post)
 
 //UPDATE post PUT
-router.put('/:userid/update/:postid', post_controller.update_post)
+router.put('/:userid/update-post/:postid', post_controller.update_post)
 
 //PUT like/unlike post
 router.put('/:userid/like-post/:postid', post_controller.like_post)
@@ -43,11 +43,11 @@ router.delete('/:userid/delete-post/:postid', post_controller.delete_post)
 //POST new comment
 router.post('/:userid/post/:postid/comment', comment_controller.new_comment)
 
-//UPDATE comment
-router.put('/:userid/comment/:commentid', comment_controller.update_comment)
-
 //GET all posts comments
 router.get('/:id/comments', comment_controller.get_post_comments)
+
+//UPDATE comment
+router.put('/:userid/update-comment/:commentid', comment_controller.update_comment)
 
 //PUT like/unlike post
 router.put('/:userid/like-comment/:commentid', comment_controller.like_comment)

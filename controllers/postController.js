@@ -34,38 +34,88 @@ exports.new_post = [
 ];
 
 // Handle user update post
+// exports.update_post = [
+
+//     body('text', 'Text Must Not Be Empty').trim().isLength({ min: 1 }),
+
+//     (req, res, next) => {
+//         //Errors from req if any
+//         const errors = validationResult(req);
+
+//         const { text } = req.body;
+
+//         const post = new Post({
+//             _id: req.params.postid,
+//             userId: req.params.userId,
+//             text,
+//         })
+
+//         if (!errors.isEmpty()) {
+//             //re-render form if any errors
+//             res.json({ alerts: errors.array() })
+//             return
+//         } else {
+//             Post.findByIdAndUpdate(req.params.postid, post, {}, function (err) {
+//                 if (err) { return next(err) }
+
+//                 res.json({
+//                     alerts: [{ msg: "Post Updated Successfully" }],
+//                     post
+//                 });
+//             })
+//         };
+//     }
+// ];
+
+//UPDATE users post
 exports.update_post = [
 
     body('text', 'Text Must Not Be Empty').trim().isLength({ min: 1 }),
 
-    (req, res, next) => {
-        //Errors from req if any
+    function (req, res, next) {
         const errors = validationResult(req);
-
-        const { text } = req.body;
-
-        const post = new Post({
-            _id: req.params.postid,
-            userId: req.params.userId,
-            text,
-        })
 
         if (!errors.isEmpty()) {
             //re-render form if any errors
-            res.json({ alerts: errors.array() })
+            res.status(400).json({ alerts: errors.array() })
             return
         } else {
-            Post.findByIdAndUpdate(req.params.postid, post, {}, function (err) {
-                if (err) { return next(err) }
+            async.parallel({
+                user: function (cb) {
+                    User.findById(req.params.userid).exec(cb)
+                },
+                post: function (cb) {
+                    Post.findById(req.params.postid).exec(cb)
+                },
+            }, function (err, results) {
+                if (err) {
+                    return next(err)
+                } else if (!results.user || !results.post) {
+                    res.status(404).json({ alerts: [{ msg: "User or Post Not Found" }] })
+                } else if (results.post.userId.toString() !== results.user._id.toString()) {
+                    res.status(401).json({ alerts: [{ msg: "You Can't Edit This Post!" }] })
+                } else {
+                    const updatedPost = new Post({
+                        _id: results.post._id,
+                        userId: results.post.userId,
+                        text: req.body.text,
+                        date: results.post.date,
+                        likes: results.post.likes
+                    })
 
-                res.json({
-                    alerts: [{ msg: "Post Updated Successfully" }],
-                    post
-                });
+                    Post.findByIdAndUpdate(results.post._id, updatedPost, {}, function (err) {
+                        if (err) { return next(err) }
+                        res.json({
+                            alerts: [{ msg: "Post Updated Successfully" }],
+                            updatedPost
+                        });
+                    })
+                }
             })
-        };
+        }
+
     }
-];
+]
 
 //GET single post
 exports.get_post = function (req, res, next) {
@@ -105,7 +155,7 @@ exports.like_post = function (req, res, next) {
             } else {
                 foundPost.likes.push(req.params.userid);
                 foundPost.save();
-                return res.status(201).json({ alerts: [{ msg: "Post Unliked" }], post: foundPost });
+                return res.status(201).json({ alerts: [{ msg: "Post Liked" }], post: foundPost });
             }
         })
 }
