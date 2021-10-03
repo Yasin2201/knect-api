@@ -109,16 +109,6 @@ exports.like_post = function (req, res, next) {
         })
 }
 
-// //DELETE users post
-// exports.delete_post = function (req, res, next) {
-//     Post.findByIdAndRemove(req.params.id, function deletePost(err) {
-//         if (err) { return next(err) }
-//         res.json({
-//             message: "Successfully Deleted Post",
-//         });
-//     });
-// }
-
 //DELETE users post
 exports.delete_post = function (req, res, next) {
     async.parallel({
