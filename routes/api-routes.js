@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const user_controller = require('../controllers/userController');
 const post_controller = require('../controllers/postController');
+const comment_controller = require('../controllers/commentController');
 
 /*
     USERS ROUTES
@@ -35,6 +36,13 @@ router.put('/:userid/like/:postid', post_controller.like_post)
 
 //DELETE a post
 router.delete('/:userid/delete/:postid', post_controller.delete_post)
+
+/*
+    COMMENTS ROUTES
+*/
+//POST new comment
+router.post('/:userid/post/:postid/comment', comment_controller.new_comment)
+
 
 
 module.exports = router;
