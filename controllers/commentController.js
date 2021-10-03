@@ -29,4 +29,12 @@ exports.new_comment = [
     }
 ]
 
-
+//GET all posts comments
+exports.get_post_comments = function (req, res, next) {
+    Comment.find({ postId: req.params.id })
+        .sort({ date: -1 })
+        .exec(function (err, post_comments) {
+            if (err) { return next(err) }
+            res.status(200).json({ post_comments })
+        })
+}
