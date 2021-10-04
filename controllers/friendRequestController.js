@@ -97,6 +97,21 @@ exports.accept_friend_request = function (req, res, next) {
                 if (err) { return next(err) }
                 res.json({ alerts: [{ msg: "Friend Request Accepted" }] })
             })
+            //Add friend in users(recipient) friends array
+            User.findById(results.user._id)
+                .exec(function (err, found_user) {
+                    if (err) { return next(err) }
+                    found_user.friends.push(results.friendRequest.requester._id);
+                    found_user.save();
+                })
+
+            //Add friend in requesters friends array
+            User.findById(results.friendRequest.requester._id)
+                .exec(function (err, found_user) {
+                    if (err) { return next(err) }
+                    found_user.friends.push(results.friendRequest.recipient._id);
+                    found_user.save();
+                })
         }
     })
 }
