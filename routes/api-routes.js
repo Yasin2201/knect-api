@@ -4,6 +4,7 @@ const user_controller = require('../controllers/userController');
 const post_controller = require('../controllers/postController');
 const comment_controller = require('../controllers/commentController');
 const friendRequest_controller = require('../controllers/friendrequestController');
+const friendRequest = require('../models/friendRequest');
 
 /*
     USERS ROUTES
@@ -68,5 +69,8 @@ router.post('/:userid/request/:recid', friendRequest_controller.new_friend_reque
 
 //DELETE or decline a friend request
 router.delete('/:userid/request/:requestid', friendRequest_controller.decline_friend_Request)
+
+//UPDATE friend request status on acceptance
+router.put('/:userid/request/:requestid', friendRequest_controller.accept_friend_request)
 
 module.exports = router;
