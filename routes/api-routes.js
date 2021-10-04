@@ -60,6 +60,8 @@ router.delete('/:userid/delete-comment/:commentid', comment_controller.delete_co
 /*
     FRIEND REQUEST ROUTES
 */
+//GET all friend requests for user
+router.get('/:id/requests', friendRequest_controller.get_all_requests)
 //POST new friend request
 router.post('/:userid/request/:recid', friendRequest_controller.new_friend_request)
 
