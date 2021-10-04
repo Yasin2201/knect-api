@@ -3,6 +3,7 @@ const router = express.Router();
 const user_controller = require('../controllers/userController');
 const post_controller = require('../controllers/postController');
 const comment_controller = require('../controllers/commentController');
+const friendRequest_controller = require('../controllers/friendrequestController');
 
 /*
     USERS ROUTES
@@ -54,5 +55,12 @@ router.put('/:userid/like-comment/:commentid', comment_controller.like_comment)
 
 //DELETE comment
 router.delete('/:userid/delete-comment/:commentid', comment_controller.delete_comment)
+
+
+/*
+    FRIEND REQUEST ROUTES
+*/
+//POST new friend request
+router.post('/:userid/request/:recid', friendRequest_controller.new_friend_request)
 
 module.exports = router;
