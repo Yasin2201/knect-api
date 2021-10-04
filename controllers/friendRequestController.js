@@ -1,7 +1,6 @@
 const FriendRequest = require('../models/friendRequest')
 const User = require('../models/user')
 const async = require('async');
-const friendRequest = require('../models/friendRequest');
 
 //GET all users friend requests
 exports.get_all_requests = function (req, res, next) {
@@ -47,6 +46,7 @@ exports.new_friend_request = function (req, res, next) {
     })
 }
 
+//DELETE friend request on decline
 exports.decline_friend_Request = function (req, res, next) {
     async.parallel({
         user: function (cb) {
@@ -59,6 +59,8 @@ exports.decline_friend_Request = function (req, res, next) {
         if (err) { return next(err) }
         if (!results.user || !results.friendRequest) {
             res.status(404).json({ alerts: [{ msg: "User or Friend Request Not Found!" }] })
+        } else if (results.friendRequest.recipient.toString() !== results.user._id.toString()) {
+            res.status(401).json({ alerts: [{ msg: "Not Authorized!" }] })
         } else {
             FriendRequest.findByIdAndRemove(results.friendRequest._id, function deleteRequest(err) {
                 if (err) { return next(err) }
@@ -67,3 +69,8 @@ exports.decline_friend_Request = function (req, res, next) {
         }
     })
 }
+
+// //UPDATE friend-request recipient and requesters friends array and friend request document to TRUE  if recipient accepts
+// exports.accept_friend_request = function (req, res, next) {
+//     //
+// }
