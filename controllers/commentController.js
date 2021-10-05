@@ -121,20 +121,41 @@ exports.like_comment = function (req, res, next) {
         .exec(function (err, foundComment) {
             if (err) { return next(err) }
             if (!foundComment) { res.status(404).json({ alerts: [{ msg: "Comment doesn't exist" }] }) }
+
             // if post is found and already liked by user filter out user and return likes to "unlike"
-            else if (foundComment.likes.includes(req.params.userid)) {
+            if (foundComment.likes.includes(req.params.userid)) {
                 const likesArray = [...foundComment.likes];
                 const filteredLikesArray = likesArray.filter(
                     (userId) => userId != req.params.userid
                 );
 
-                foundComment.likes = filteredLikesArray;
-                foundComment.save();
-                return res.status(201).json({ alerts: [{ msg: "Comment Unliked" }], comment: foundComment });
+                const newComment = new Comment({
+                    _id: foundComment._id,
+                    ...foundComment,
+                    likes: filteredLikesArray
+                })
+
+                Comment.findByIdAndUpdate(req.params.commentid, newComment, {}, function (err) {
+                    if (err) { return next(err) }
+                    res.status(201).json({
+                        alerts: [{ msg: "Unliked Comment" }],
+                        newComment
+                    })
+                })
             } else {
-                foundComment.likes.push(req.params.userid);
-                foundComment.save();
-                return res.status(201).json({ alerts: [{ msg: "Comment Liked" }], comment: foundComment });
+                const newComment = new Comment({
+                    _id: foundComment._id,
+                    ...foundComment,
+                    likes: [...foundComment.likes, req.params.userid]
+                })
+
+                Comment.findByIdAndUpdate(req.params.commentid, newComment, {}, function (err) {
+                    if (err) { return next(err) }
+                    res.status(201).json({
+                        alerts: [{ msg: "Liked Comment" }],
+                        newComment
+                    })
+                })
             }
         })
 }
