@@ -108,20 +108,42 @@ exports.like_post = function (req, res, next) {
         .exec(function (err, foundPost) {
             if (err) { return next(err) }
             if (!foundPost) { res.status(404).json({ alerts: [{ msg: "Post doesn't exist" }] }) }
+
             // if post is found and already liked by user filter out user and return likes to "unlike"
             if (foundPost.likes.includes(req.params.userid)) {
+
                 const likesArray = [...foundPost.likes];
                 const filteredLikesArray = likesArray.filter(
                     (userId) => userId != req.params.userid
                 );
 
-                foundPost.likes = filteredLikesArray;
-                foundPost.save();
-                return res.status(201).json({ alerts: [{ msg: "Post Unliked" }], post: foundPost });
+                const newPost = new Post({
+                    _id: foundPost._id,
+                    ...foundPost,
+                    likes: filteredLikesArray
+                })
+
+                Post.findByIdAndUpdate(req.params.postid, newPost, {}, function (err) {
+                    if (err) { return next(err) }
+                    res.status(201).json({
+                        alerts: [{ msg: "Unliked Post" }],
+                        newPost
+                    })
+                })
             } else {
-                foundPost.likes.push(req.params.userid);
-                foundPost.save();
-                return res.status(201).json({ alerts: [{ msg: "Post Liked" }], post: foundPost });
+                const newPost = new Post({
+                    _id: foundPost._id,
+                    ...foundPost,
+                    likes: [...foundPost.likes, req.params.userid]
+                })
+
+                Post.findByIdAndUpdate(req.params.postid, newPost, {}, function (err) {
+                    if (err) { return next(err) }
+                    res.status(201).json({
+                        alerts: [{ msg: "Liked Post" }],
+                        newPost
+                    })
+                })
             }
         })
 }
