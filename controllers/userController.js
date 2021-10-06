@@ -2,6 +2,7 @@ require('dotenv').config()
 const User = require('../models/user')
 const bcrypt = require('bcryptjs')
 const { body, validationResult } = require('express-validator');
+const jwt = require("jsonwebtoken");
 
 //User sign-up
 exports.sign_up_post = [
@@ -75,9 +76,13 @@ exports.sign_in_post = [
 
                     if (result) {
                         // passwords match! log user in
+                        const secret = process.env.SECRET_KEY
+                        const token = jwt.sign(user._id, secret);
+
                         return res.status(200).json({
                             alerts: [{ msg: "Auth Passed" }],
                             userAuth: true,
+                            token
                         });
                     } else {
                         // passwords do not match!
