@@ -15,7 +15,7 @@ db.on('error', console.error.bind(console, "MongoDB connection error: "));
 //PassportJS setup
 const passport = require('passport');
 const jwtStrategy = require('./strategies/jwt');
-passport.user(jwtStrategy);
+passport.use(jwtStrategy);
 
 //Routes
 var indexRouter = require('./routes/index');
