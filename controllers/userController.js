@@ -47,6 +47,10 @@ exports.sign_up_post = [
     }
 ];
 
+exports.sign_in_get = function (req, res, next) {
+    res.json({ title: 'Sign In' });
+}
+
 // User sign-in
 exports.sign_in_post = [
 
@@ -77,7 +81,7 @@ exports.sign_in_post = [
                     if (result) {
                         // passwords match! log user in
                         const secret = process.env.SECRET_KEY
-                        const token = jwt.sign(user._id, secret);
+                        const token = jwt.sign({ _id: user._id }, secret);
 
                         return res.status(200).json({
                             alerts: [{ msg: "Auth Passed" }],
