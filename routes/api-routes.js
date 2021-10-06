@@ -73,4 +73,7 @@ router.delete('/:userid/request/:requestid', friendRequest_controller.decline_fr
 //UPDATE friend request status on acceptance
 router.put('/:userid/request/:requestid', friendRequest_controller.accept_friend_request)
 
+//DELETE users friendRequest document and remove friends from each users array when user unfriends
+router.delete('/:userid/unfriend/:friendid', friendRequest_controller.unfriend_user)
+
 module.exports = router;
