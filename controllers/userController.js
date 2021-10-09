@@ -24,7 +24,7 @@ exports.sign_up_post = [
             });
 
             if (!errors.isEmpty()) {
-                res.json({ title: 'Sign Up', alerts: errors.array(), user: undefined });
+                res.status(400).json({ alerts: errors.array(), signedUp: false });
                 return
             } else {
                 // first check if username already exists
@@ -34,11 +34,11 @@ exports.sign_up_post = [
 
                         // if username exists re-render sign-up with error
                         if (found_username) {
-                            res.json({ title: 'Sign Up', user: undefined, alerts: [{ msg: 'Username already exists' }] });
+                            res.status(400).json({ alerts: [{ msg: 'Username already exists' }], signedUp: false });
                         } else {
                             user.save(function (err) {
                                 if (err) { return next(err) }
-                                res.json({ alerts: [{ msg: 'Signed Up Successfully!' }] })
+                                res.json({ alerts: [{ msg: 'Signed Up Successfully' }], signedUp: true })
                             });
                         }
                     });
