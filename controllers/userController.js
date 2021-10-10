@@ -86,6 +86,7 @@ exports.sign_in_post = [
                         return res.status(200).json({
                             alerts: [{ msg: "Auth Passed" }],
                             userAuth: true,
+                            user: user._id,
                             token
                         });
                     } else {
