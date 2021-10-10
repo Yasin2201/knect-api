@@ -31,6 +31,9 @@ router.post('/:id/new-post', passport.authenticate('jwt', { session: false }), p
 //GET all users posts
 router.get('/:id/posts', passport.authenticate('jwt', { session: false }), post_controller.get_all_posts)
 
+//GET all users posts and friends posts
+router.get('/:id/timeline', passport.authenticate('jwt', { session: false }), post_controller.get_timeline_posts)
+
 //GET single post
 router.get('/:userid/posts/:postid', passport.authenticate('jwt', { session: false }), post_controller.get_post)
 
