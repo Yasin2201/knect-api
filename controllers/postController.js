@@ -93,13 +93,35 @@ exports.get_post = function (req, res, next) {
 }
 
 //GET all posts
-exports.get_all_posts = function (req, res, next) {
-    Post.find({ userId: req.params.id })
+exports.get_all_posts = async function (req, res, next) {
+    const user = await User.findById(req.params.id)
+    const allPosts = await Post.find({ userId: req.params.id })
         .sort({ date: -1 })
-        .exec(function (err, all_posts) {
-            if (err) { return next(err) }
-            res.json({ all_posts })
-        })
+
+    if (!user) {
+        return res.status(404).json({ msg: "user not found" });
+    } else {
+        return res.status(200).json({ user, allPosts })
+    }
+}
+
+//GET all users posts and users friends post for cutom home timeline 
+exports.get_timeline_posts = async function (req, res, next) {
+    const user = await User.findById(req.params.id)
+
+    //Find posts that have a userId which is IN users friends lists or find posts that have users userId
+    const posts = await Post.find({
+        $or: [
+            { userId: { $in: user.friends } },
+            { userId: user._id }
+        ]
+    })
+
+    if (!user) {
+        return res.status(404).json({ msg: "user not found" });
+    } else {
+        return res.status(200).json({ user, posts })
+    }
 }
 
 //PUT like/unlike posts
