@@ -115,12 +115,16 @@ exports.get_timeline_posts = async function (req, res, next) {
             { userId: { $in: user.friends } },
             { userId: user._id }
         ]
+    }).sort({ date: -1 })
+
+    const allUsers = await User.find({
+        _id: { $in: posts.map(post => post.userId) }
     })
 
     if (!user) {
         return res.status(404).json({ msg: "user not found" });
     } else {
-        return res.status(200).json({ user, posts })
+        return res.status(200).json({ allUsers, posts })
     }
 }
 
