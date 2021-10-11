@@ -81,13 +81,19 @@ exports.update_comment = [
 ]
 
 //GET all posts comments
-exports.get_post_comments = function (req, res, next) {
-    Comment.find({ postId: req.params.id })
-        .sort({ date: -1 })
-        .exec(function (err, post_comments) {
-            if (err) { return next(err) }
-            res.status(200).json({ post_comments })
-        })
+exports.get_post_comments = async function (req, res, next) {
+    const comments = await Comment.find({ postId: req.params.id }).sort({ date: -1 })
+    const allUsers = await User.find({
+        _id: { $in: comments.map(comment => comment.userId) }
+    })
+
+    if (!comments) {
+        return res.status(404).json({ msg: "comments not found" });
+    } else if (comments.length > 0) {
+        return res.status(200).json({ allUsers, comments })
+    } else {
+        return res.status(200)
+    }
 }
 
 //DELETE users comment
