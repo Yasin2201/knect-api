@@ -22,6 +22,9 @@ router.get('/', user_controller.sign_in_get)
 //GET user sign-out
 router.get('/sign-out', user_controller.sign_out_get)
 
+//GET users details for profile page
+router.get('/profile/:id', passport.authenticate('jwt', { session: false }), user_controller.user_details_get)
+
 /*
     POSTS ROUTES
 */

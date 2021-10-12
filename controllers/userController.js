@@ -1,5 +1,6 @@
 require('dotenv').config()
 const User = require('../models/user')
+const Post = require('../models/post')
 const bcrypt = require('bcryptjs')
 const { body, validationResult } = require('express-validator');
 const jwt = require("jsonwebtoken");
@@ -107,3 +108,13 @@ exports.sign_out_get = function (req, res) {
     req.logout();
     res.redirect('/');
 };
+
+exports.user_details_get = async function (req, res, next) {
+    const user = await User.findById(req.params.id)
+    if (!user) {
+        res.status(404).json({ alerts: [{ msg: "User Not Found" }] })
+
+    } else {
+        res.json({ user })
+    }
+}
