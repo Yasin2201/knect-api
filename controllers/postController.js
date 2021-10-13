@@ -1,5 +1,6 @@
 const Post = require('../models/post')
 const User = require('../models/user')
+const Comment = require('../models/comment')
 const { body, validationResult } = require('express-validator');
 const async = require('async');
 
@@ -9,27 +10,32 @@ exports.new_post = [
     body('text', 'Text Must Not Be Empty').trim().isLength({ min: 1 }),
 
     (req, res, next) => {
+
         //Errors from req if any
         const errors = validationResult(req);
 
-        const { text } = req.body;
-        const post = new Post({
-            userId: req.params.id,
-            text
-        });
-
-        if (!errors.isEmpty()) {
-            //re-render form if any errors
-            res.json({ alerts: errors.array() })
-            return
-        } else {
-            //save post to database
-            console.log(req.body)
-            post.save(function (err) {
+        User.findById(req.params.id)
+            .exec(function (err, user) {
                 if (err) { return next(err) }
-                res.json({ alerts: [{ msg: "Post Saved Successfully" }] })
-            });
-        };
+
+                const post = new Post({
+                    username: user.username,
+                    userId: req.params.id,
+                    text: req.body.text
+                });
+
+                if (!errors.isEmpty()) {
+                    //re-render form if any errors
+                    res.json({ alerts: errors.array() })
+                    return
+                } else {
+                    //save post to database
+                    post.save(function (err) {
+                        if (err) { return next(err) }
+                        res.json({ alerts: [{ msg: "Post Saved Successfully" }] })
+                    });
+                };
+            })
     }
 ];
 
@@ -64,6 +70,7 @@ exports.update_post = [
                     const updatedPost = new Post({
                         _id: results.post._id,
                         userId: results.post.userId,
+                        username: results.post.username,
                         text: req.body.text,
                         date: results.post.date,
                         likes: results.post.likes
@@ -92,16 +99,18 @@ exports.get_post = function (req, res, next) {
         })
 }
 
-//GET all posts
+//GET all posts & posts comments
 exports.get_all_posts = async function (req, res, next) {
     const user = await User.findById(req.params.id)
     const allPosts = await Post.find({ userId: req.params.id })
         .sort({ date: -1 })
 
+    const postsComments = await Comment.find({ postId: { $in: allPosts.map(post => post._id) } }).sort({ date: -1 })
+
     if (!user) {
         return res.status(404).json({ msg: "user not found" });
     } else {
-        return res.status(200).json({ user, allPosts })
+        return res.status(200).json({ user, allPosts, postsComments })
     }
 }
 
@@ -117,14 +126,12 @@ exports.get_timeline_posts = async function (req, res, next) {
         ]
     }).sort({ date: -1 })
 
-    const allUsers = await User.find({
-        _id: { $in: posts.map(post => post.userId) }
-    })
+    const postsComments = await Comment.find({ postId: { $in: posts.map(post => post._id) } }).sort({ date: -1 })
 
     if (!user) {
         return res.status(404).json({ msg: "user not found" });
     } else {
-        return res.status(200).json({ allUsers, posts })
+        return res.status(200).json({ posts, postsComments })
     }
 }
 
