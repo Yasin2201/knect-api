@@ -10,23 +10,29 @@ exports.new_comment = [
     (req, res, next) => {
         const errors = validationResult(req)
 
-        const comment = new Comment({
-            postId: req.params.postid,
-            userId: req.params.userid,
-            text: req.body.text
-        })
-
-        if (!errors.isEmpty()) {
-            //re-render form if any errors
-            res.json({ alerts: errors.array() })
-            return
-        } else {
-            //save comment to database
-            comment.save(function (err) {
+        User.findById(req.params.id)
+            .exec(function (err, user) {
                 if (err) { return next(err) }
-                res.json({ alerts: [{ msg: "Comment Saved Successfully" }] })
-            });
-        }
+
+                const comment = new Comment({
+                    postId: req.params.postid,
+                    userId: req.params.userid,
+                    username: user.username,
+                    text: req.body.text
+                })
+
+                if (!errors.isEmpty()) {
+                    //re-render form if any errors
+                    res.json({ alerts: errors.array() })
+                    return
+                } else {
+                    //save comment to database
+                    comment.save(function (err) {
+                        if (err) { return next(err) }
+                        res.json({ alerts: [{ msg: "Comment Saved Successfully" }] })
+                    });
+                }
+            })
     }
 ]
 
@@ -62,6 +68,7 @@ exports.update_comment = [
                         _id: results.comment._id,
                         userId: results.comment.userId,
                         postId: results.comment.postId,
+                        username: results.comment.username,
                         text: req.body.text,
                         date: results.comment.date,
                         likes: results.comment.likes
@@ -83,14 +90,11 @@ exports.update_comment = [
 //GET all posts comments
 exports.get_post_comments = async function (req, res, next) {
     const comments = await Comment.find({ postId: req.params.id }).sort({ date: -1 })
-    const allUsers = await User.find({
-        _id: { $in: comments.map(comment => comment.userId) }
-    })
 
     if (!comments) {
         return res.status(404).json({ msg: "comments not found" });
     } else if (comments.length > 0) {
-        return res.status(200).json({ allUsers, comments })
+        return res.status(200).json({ comments })
     } else {
         return res.status(200)
     }
