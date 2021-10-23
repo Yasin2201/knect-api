@@ -53,7 +53,7 @@ router.delete('/:userid/delete-post/:postid', passport.authenticate('jwt', { ses
     COMMENTS ROUTES
 */
 //POST new comment
-router.post('/:userid/post/:postid/comment', passport.authenticate('jwt', { session: false }), comment_controller.new_comment)
+router.post('/:userid/post/:postid/new-comment', passport.authenticate('jwt', { session: false }), comment_controller.new_comment)
 
 //GET all posts comments
 router.get('/:id/comments', passport.authenticate('jwt', { session: false }), comment_controller.get_post_comments)

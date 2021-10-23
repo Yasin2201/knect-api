@@ -32,7 +32,7 @@ exports.new_post = [
                     //save post to database
                     post.save(function (err) {
                         if (err) { return next(err) }
-                        res.json({ alerts: [{ msg: "Post Saved Successfully" }] })
+                        res.json({ alerts: [{ msg: "Post Saved Successfully" }], post })
                     });
                 };
             })
@@ -152,6 +152,7 @@ exports.like_post = function (req, res, next) {
 
                 const newPost = new Post({
                     _id: foundPost._id,
+                    date: foundPost.date,
                     ...foundPost,
                     likes: filteredLikesArray
                 })
@@ -166,6 +167,7 @@ exports.like_post = function (req, res, next) {
             } else {
                 const newPost = new Post({
                     _id: foundPost._id,
+                    date: foundPost.date,
                     ...foundPost,
                     likes: [...foundPost.likes, req.params.userid]
                 })

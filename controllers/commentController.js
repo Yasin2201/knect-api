@@ -10,13 +10,13 @@ exports.new_comment = [
     (req, res, next) => {
         const errors = validationResult(req)
 
-        User.findById(req.params.id)
+        User.findById(req.params.userid)
             .exec(function (err, user) {
                 if (err) { return next(err) }
 
                 const comment = new Comment({
                     postId: req.params.postid,
-                    userId: req.params.userid,
+                    userId: user._id,
                     username: user.username,
                     text: req.body.text
                 })
@@ -29,7 +29,7 @@ exports.new_comment = [
                     //save comment to database
                     comment.save(function (err) {
                         if (err) { return next(err) }
-                        res.json({ alerts: [{ msg: "Comment Saved Successfully" }] })
+                        res.json({ alerts: [{ msg: "Comment Saved Successfully" }], comment })
                     });
                 }
             })
@@ -141,6 +141,7 @@ exports.like_comment = function (req, res, next) {
 
                 const newComment = new Comment({
                     _id: foundComment._id,
+                    date: foundComment.date,
                     ...foundComment,
                     likes: filteredLikesArray
                 })
@@ -155,6 +156,7 @@ exports.like_comment = function (req, res, next) {
             } else {
                 const newComment = new Comment({
                     _id: foundComment._id,
+                    date: foundComment.date,
                     ...foundComment,
                     likes: [...foundComment.likes, req.params.userid]
                 })
