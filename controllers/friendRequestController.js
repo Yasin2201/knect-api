@@ -12,6 +12,15 @@ exports.get_all_requests = function (req, res, next) {
         })
 }
 
+//GET all users sent friend requests
+exports.get_all_sent_requests = function (req, res, next) {
+    FriendRequest.find({ requester: req.params.id, friends: false })
+        .exec(function (err, all_requests) {
+            if (err) { return next(err) }
+            res.json({ all_requests })
+        })
+}
+
 //POST new friend request
 exports.new_friend_request = function (req, res, next) {
     const { userid, recid } = req.params
