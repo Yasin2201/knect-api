@@ -74,6 +74,9 @@ router.delete('/:userid/delete-comment/:commentid', passport.authenticate('jwt',
 //GET all friend requests for user
 router.get('/:id/requests', passport.authenticate('jwt', { session: false }), friendRequest_controller.get_all_requests)
 
+//GET all users friends
+router.get('/:id/friends', friendRequest_controller.get_all_friends)
+
 //POST new friend request
 router.post('/:userid/request/:recid', passport.authenticate('jwt', { session: false }), friendRequest_controller.new_friend_request)
 

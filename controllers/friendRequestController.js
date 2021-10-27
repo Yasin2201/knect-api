@@ -1,7 +1,6 @@
 const FriendRequest = require('../models/friendRequest')
 const User = require('../models/user')
 const async = require('async');
-const user = require('../models/user');
 
 //GET all users friend requests
 exports.get_all_requests = function (req, res, next) {
@@ -18,6 +17,17 @@ exports.get_all_sent_requests = function (req, res, next) {
         .exec(function (err, all_requests) {
             if (err) { return next(err) }
             res.json({ all_requests })
+        })
+}
+
+//GET all users friends
+exports.get_all_friends = function (req, res, next) {
+    User.findById(req.params.id)
+        .populate('friends', 'username')
+        .exec(function (err, user_details) {
+            if (err) { return next(err) }
+            res.json({ friends: user_details.friends })
+
         })
 }
 
