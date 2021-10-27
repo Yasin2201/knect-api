@@ -2,8 +2,8 @@ const FriendRequest = require('../models/friendRequest')
 const User = require('../models/user')
 const async = require('async');
 
-//GET all users friend requests
-exports.get_all_requests = function (req, res, next) {
+//GET all users recieved friend requests
+exports.get_all_recieved_requests = function (req, res, next) {
     FriendRequest.find({ recipient: req.params.id, friends: false })
         .exec(function (err, all_requests) {
             if (err) { return next(err) }
