@@ -78,7 +78,7 @@ router.get('/:id/recieved-requests', passport.authenticate('jwt', { session: fal
 router.get('/:id/sent-requests', passport.authenticate('jwt', { session: false }), friendRequest_controller.get_all_sent_requests)
 
 //GET all users friends
-router.get('/:id/friends', friendRequest_controller.get_all_friends)
+router.get('/:id/friends', passport.authenticate('jwt', { session: false }), friendRequest_controller.get_all_friends)
 
 //POST new friend request
 router.post('/:userid/request/:recid', passport.authenticate('jwt', { session: false }), friendRequest_controller.new_friend_request)
