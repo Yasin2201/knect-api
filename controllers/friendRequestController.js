@@ -33,6 +33,30 @@ exports.get_all_friends = function (req, res, next) {
         })
 }
 
+//GET post to check wether user is friends with current profile
+exports.get_check_friend = function (req, res, next) {
+    FriendRequest.find({
+        $or: [
+            { recipient: req.params.userid, requester: req.params.profid },
+            { recipient: req.params.profid, requester: req.params.userid }
+        ]
+    }).exec(function (err, found_request) {
+        const [reqData] = found_request
+
+        if (err) { return next(err) }
+
+        if (!reqData) {
+            res.json({ msg: 'Add Friend', status: true })
+        } else if (reqData.recipient.toString() === req.params.userid && reqData.requester.toString() === req.params.profid && reqData.friends === false) {
+            res.json({ msg: 'Friend Request Already Recieved', status: false })
+        } else if (reqData.recipient.toString() === req.params.profid && reqData.requester.toString() === req.params.userid && reqData.friends === false) {
+            res.json({ msg: 'Friend Request Already Sent', status: false })
+        } else if (reqData.friends === true) {
+            res.json({ msg: 'Friends', status: false })
+        }
+    })
+}
+
 //POST new friend request
 exports.new_friend_request = function (req, res, next) {
     const { userid, recid } = req.params
@@ -159,7 +183,8 @@ exports.unfriend_user = function (req, res, next) {
             }).exec(cb)
         }
     }, function (err, results) {
-        const friendReqData = results.friendRequest[0]
+        const [friendReqData] = results.friendRequest
+
         if (err) { return next(err) }
 
         if (!friendReqData) {
