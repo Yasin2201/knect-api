@@ -5,6 +5,7 @@ const async = require('async');
 //GET all users recieved friend requests
 exports.get_all_recieved_requests = function (req, res, next) {
     FriendRequest.find({ recipient: req.params.id, friends: false })
+        .populate('requester', 'username')
         .exec(function (err, all_requests) {
             if (err) { return next(err) }
             res.json({ all_requests })
@@ -14,6 +15,7 @@ exports.get_all_recieved_requests = function (req, res, next) {
 //GET all users sent friend requests
 exports.get_all_sent_requests = function (req, res, next) {
     FriendRequest.find({ requester: req.params.id, friends: false })
+        .populate('recipient', 'username')
         .exec(function (err, all_requests) {
             if (err) { return next(err) }
             res.json({ all_requests })
@@ -77,10 +79,9 @@ exports.decline_friend_Request = function (req, res, next) {
         }
     }, function (err, results) {
         if (err) { return next(err) }
+
         if (!results.user || results.friendRequest.length < 1) {
             res.status(404).json({ alerts: [{ msg: "User or Friend Request Not Found!" }] })
-        } else if (results.friendRequest.recipient.toString() !== results.user._id.toString()) {
-            res.status(401).json({ alerts: [{ msg: "Not Authorized!" }] })
         } else {
             FriendRequest.findByIdAndRemove(results.friendRequest._id, function deleteRequest(err) {
                 if (err) { return next(err) }
@@ -100,7 +101,7 @@ exports.accept_friend_request = function (req, res, next) {
             FriendRequest.find({ _id: req.params.requestid, friends: false }).exec(cb)
         }
     }, function (err, results) {
-        const friendReqData = results.friendRequest[0]
+        const [friendReqData] = results.friendRequest
 
         if (err) { return next(err) }
         if (!results.user || !friendReqData) {
