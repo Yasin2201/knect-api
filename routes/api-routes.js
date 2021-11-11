@@ -80,6 +80,9 @@ router.get('/:id/sent-requests', passport.authenticate('jwt', { session: false }
 //GET all users friends
 router.get('/:id/friends', passport.authenticate('jwt', { session: false }), friendRequest_controller.get_all_friends)
 
+//GET check if user is already friends with profile
+router.get('/:userid/friends/:profid', passport.authenticate('jwt', { session: false }), friendRequest_controller.get_check_friend)
+
 //POST new friend request
 router.post('/:userid/request/:recid', passport.authenticate('jwt', { session: false }), friendRequest_controller.new_friend_request)
 
